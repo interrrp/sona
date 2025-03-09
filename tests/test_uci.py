@@ -23,6 +23,12 @@ def test_uci_isready(board: Board, engine: Engine) -> None:
     assert do_uci_command(board, engine, "isready") == "readyok\n"
 
 
+def test_uci_ucinewgame(board: Board, engine: Engine) -> None:
+    assert do_uci_command(board, engine, "ucinewgame") == ""
+    assert board.fen() == board.starting_fen
+    assert not board.move_stack
+
+
 def test_uci_goinfinite(board: Board, engine: Engine) -> None:
     assert do_uci_command(board, engine, "go infinite") == "bestmove e2e4\n"
     assert len(board.move_stack) == 1

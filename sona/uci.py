@@ -39,7 +39,7 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
                 engine.options[name] = value
             return ""
 
-        case ["position", "startpos"]:
+        case ["position", "startpos"] | ["ucinewgame"]:
             board.reset()
             return ""
 
