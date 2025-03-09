@@ -51,6 +51,7 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
 
         case [
             "position",
+            "fen",
             fen_part_1,
             fen_part_2,
             fen_part_3,
@@ -66,7 +67,7 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
                 board.push_uci(move)
             return ""
 
-        case ["position", *fen]:
+        case ["position", "fen", *fen]:
             board.set_fen(" ".join(fen))
             return ""
 

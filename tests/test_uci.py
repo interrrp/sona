@@ -53,14 +53,14 @@ def test_uci_position_startpos(board: Board, engine: Engine) -> None:
 
 def test_uci_position_fen(board: Board, engine: Engine) -> None:
     e4_fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
-    assert do_uci_command(board, engine, f"position {e4_fen}") == ""
+    assert do_uci_command(board, engine, f"position fen {e4_fen}") == ""
     assert board.fen() == e4_fen
 
 
 def test_uci_position_fen_and_moves(board: Board, engine: Engine) -> None:
     e4_e5_fen = "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
     e4_e5_g1f3_d7d6_fen = "rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 2"
-    assert do_uci_command(board, engine, f"position {e4_e5_fen} moves g1f3 d7d6") == ""
+    assert do_uci_command(board, engine, f"position fen {e4_e5_fen} moves g1f3 d7d6") == ""
     assert board.fen() == e4_e5_g1f3_d7d6_fen
 
 
