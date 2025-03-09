@@ -2,7 +2,7 @@ import random
 
 from chess import BLACK, WHITE, Board, Color, Move
 
-from sona.evaluator import evaluate
+from sona.evaluator import evaluate, worst_score_for
 
 
 class Engine:
@@ -26,14 +26,19 @@ class Engine:
         legal_moves = list(self._board.legal_moves)
 
         best_move = random.choice(legal_moves)  # noqa: S311
-        best_score: float = -1 if color == WHITE else 1
+        # Start with the worst score for the color, so the algorithm
+        # knows whether to minimize or maximize for the first move
+        best_score = worst_score_for(color)
 
         for move in legal_moves:
             self._board.push(move)
             score = self._minimax(3, opposite_color)
             self._board.pop()
 
-            if (color == WHITE and score > best_score) or (color == BLACK and score < best_score):
+            if (
+                (color == WHITE and score > best_score)  # Maximize score for white
+                or (color == BLACK and score < best_score)  # Minimize score for black
+            ):
                 best_score = score
                 best_move = move
 
@@ -43,7 +48,9 @@ class Engine:
         if depth == 0 or self._board.is_game_over():
             return evaluate(self._board)
 
-        best_score: float = -1 if color == WHITE else 1
+        # Start with the worst score for the color, so the algorithm
+        # knows whether to minimize or maximize for the first move
+        best_score = worst_score_for(color)
 
         for move in self._board.legal_moves:
             self._board.push(move)

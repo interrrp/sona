@@ -8,18 +8,9 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
         case ["uci"]:
             response = "id name Sona\nid author interrrp\n"
             for name, value in engine.options.items():
-                response += f"option name {name} type "
-                formatted_value = ""
-                if isinstance(value, str):
-                    response += "string"
-                    formatted_value = value
-                elif isinstance(value, bool):
-                    response += "check"
-                    formatted_value = str(value).lower()
-                else:
-                    response += "spin"
-                    formatted_value = value
-                response += f" default {formatted_value}\n"
+                uci_type = to_uci_type(value)
+                uci_value = to_uci_value(value)
+                response += f"option name {name} type {uci_type} default {uci_value}\n"
             response += "uciok\n"
             return response
 
@@ -73,3 +64,17 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
 
         case _:
             return "unknown command"
+
+
+def to_uci_type(value: str | int | bool) -> str:
+    if isinstance(value, bool):
+        return "check"
+    if isinstance(value, int):
+        return "spin"
+    return "string"
+
+
+def to_uci_value(value: str | int | bool) -> str:
+    if isinstance(value, bool):
+        return str(value).lower()
+    return str(value)

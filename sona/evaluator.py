@@ -1,6 +1,5 @@
 from chess import (
     BISHOP,
-    BLACK,
     KING,
     KNIGHT,
     PAWN,
@@ -9,6 +8,7 @@ from chess import (
     SQUARES,
     WHITE,
     Board,
+    Color,
     Piece,
     PieceType,
 )
@@ -16,18 +16,22 @@ from chess import (
 
 def evaluate(board: Board) -> float:
     if board.is_checkmate():
-        return -1 if board.turn == WHITE else 1
+        return worst_score_for(board.turn)
 
-    if board.is_stalemate() or board.is_insufficient_material() or board.is_seventyfive_moves():
+    is_draw = (
+        board.is_stalemate()
+        or board.is_insufficient_material()
+        or board.is_fivefold_repetition()
+        or board.can_claim_fifty_moves()
+        or board.is_seventyfive_moves()
+    )
+    if is_draw:
         return 0
 
     evaluation: float = 0
 
     if board.is_check():
-        if board.turn == WHITE:
-            evaluation -= 3
-        elif board.turn == BLACK:
-            evaluation += 3
+        evaluation += worst_score_for(board.turn) * 3
 
     for square in SQUARES:
         piece = board.piece_at(square)
@@ -54,3 +58,7 @@ def get_piece_material(piece_type: PieceType) -> float:
     if piece_type == QUEEN:
         return 9
     return 0
+
+
+def worst_score_for(color: Color) -> float:
+    return -1 if color == WHITE else 1
