@@ -26,7 +26,7 @@ def do_uci_command(board: Board, engine: Engine, command: str) -> str:  # noqa: 
         case ["isready"]:
             return "readyok\n"
 
-        case ["go", "infinite"]:
+        case ["go", *_]:
             move = engine.move()
             return f"bestmove {move.uci()}\n"
 
