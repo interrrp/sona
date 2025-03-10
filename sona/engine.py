@@ -1,8 +1,8 @@
-import random
+from chess import Board, Move
 
-from chess import BLACK, WHITE, Board, Color, Move
+from sona.evaluator import evaluate
 
-from sona.evaluator import evaluate, worst_score_for
+INF = float("inf")
 
 
 class Engine:
@@ -16,56 +16,44 @@ class Engine:
         return best_move
 
     def _generate_best_move(self) -> Move:
-        is_first_move = not self._board.move_stack
-        if is_first_move:
+        if not self._board.move_stack:
+            # First move should always be e2e4
             return Move.from_uci("e2e4")
 
-        color = self._board.turn
-        opposite_color = not color
+        all_moves = list(self._board.legal_moves)
+        best_move = Move.null()
+        best_score = -INF
 
-        legal_moves = list(self._board.legal_moves)
-
-        best_move = random.choice(legal_moves)  # noqa: S311
-        # Start with the worst score for the color, so the algorithm
-        # knows whether to minimize or maximize for the first move
-        best_score = worst_score_for(color)
-
-        for move in legal_moves:
+        for move in all_moves:
             self._board.push(move)
-            score = self._minimax(3, opposite_color)
+            score = -self._negamax(depth=self._depth)
             self._board.pop()
 
-            if (
-                (color == WHITE and score > best_score)  # Maximize score for white
-                or (color == BLACK and score < best_score)  # Minimize score for black
-            ):
+            if score > best_score:
                 best_score = score
                 best_move = move
 
         return best_move
 
-    def _minimax(self, depth: int, color: Color, alpha: float = -1000, beta: float = 1000) -> float:
+    def _negamax(self, depth: int, alpha: float = -INF, beta: float = INF) -> float:
         if depth == 0 or self._board.is_game_over():
             return evaluate(self._board)
 
-        # Start with the worst score for the color, so the algorithm
-        # knows whether to minimize or maximize for the first move
-        best_score = worst_score_for(color)
-
+        score = -INF
         for move in self._board.legal_moves:
             self._board.push(move)
-            score = self._minimax(depth - 1, not color, alpha, beta)
+            score = max(score, -self._negamax(depth - 1, -beta, -alpha))
             self._board.pop()
 
-            if (color == WHITE and score > best_score) or (color == BLACK and score < best_score):
-                best_score = score
-
-            if color == WHITE:
-                alpha = max(alpha, score)
-            else:
-                beta = min(beta, score)
-
-            if beta <= alpha:
+            alpha = max(alpha, score)
+            if alpha >= beta:
                 break
 
-        return best_score
+        return score
+
+    @property
+    def _depth(self) -> int:
+        specified_depth = self.options.get("depth")
+        if not isinstance(specified_depth, int):
+            return 3
+        return specified_depth

@@ -28,17 +28,17 @@ def evaluate(board: Board) -> float:
     if is_draw:
         return 0
 
-    evaluation: float = 0
+    score: float = 0
 
     if board.is_check():
-        evaluation += worst_score_for(board.turn) * 3
+        score += worst_score_for(board.turn) * 3
 
     for square in SQUARES:
         piece = board.piece_at(square)
         if piece:
-            evaluation += evaluate_piece(piece)
+            score += evaluate_piece(piece)
 
-    return evaluation
+    return score
 
 
 def evaluate_piece(piece: Piece) -> float:
