@@ -8,8 +8,6 @@ from chess import (
     SQUARES,
     WHITE,
     Board,
-    Color,
-    Piece,
     PieceType,
 )
 
@@ -18,40 +16,48 @@ from sona import INF
 
 def evaluate(board: Board) -> float:
     if board.is_checkmate():
-        return -INF * sign(board.turn)
+        return -INF * get_sign(board)
 
-    is_draw = (
+    if is_draw(board):
+        return 0
+
+    return get_material_weight(board) * get_piece_diff(board) * get_sign(board)
+
+
+def is_draw(board: Board) -> bool:
+    return (
         board.is_stalemate()
         or board.is_insufficient_material()
         or board.is_fivefold_repetition()
         or board.can_claim_fifty_moves()
         or board.is_seventyfive_moves()
     )
-    if is_draw:
-        return 0
 
-    score: float = 0
 
-    if board.is_check():
-        score -= 3
-
-    n_white_pieces = 0
-    n_black_pieces = 0
+def get_material_weight(board: Board) -> float:
+    weight = 0
     for square in SQUARES:
         piece = board.piece_at(square)
-        if not piece:
+        if piece:
+            weight += get_piece_material(piece.piece_type)
+    return weight
+
+
+def get_piece_diff(board: Board) -> float:
+    num_white_pieces = 0
+    num_black_pieces = 0
+
+    for square in SQUARES:
+        piece = board.piece_at(square)
+        if piece is None:
             continue
-        score += evaluate_piece(piece)
+
         if piece.color == WHITE:
-            n_white_pieces += 1
+            num_white_pieces += 1
         else:
-            n_black_pieces += 1
+            num_black_pieces += 1
 
-    return score * (n_white_pieces - n_black_pieces) * sign(board.turn)
-
-
-def evaluate_piece(piece: Piece) -> float:
-    return get_piece_material(piece.piece_type)
+    return num_white_pieces - num_black_pieces
 
 
 def get_piece_material(piece_type: PieceType) -> float:
@@ -68,5 +74,5 @@ def get_piece_material(piece_type: PieceType) -> float:
     return 0
 
 
-def sign(color: Color) -> float:
-    return 1 if color == WHITE else -1
+def get_sign(board: Board) -> float:
+    return 1 if board.turn == WHITE else -1
