@@ -70,7 +70,7 @@ def to_uci_type(value: str | int | bool) -> str:
     if isinstance(value, bool):
         return "check"
     if isinstance(value, int):
-        return "spin"
+        return "spin min -1000000 max 1000000"
     return "string"
 
 

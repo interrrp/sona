@@ -7,7 +7,7 @@ from sona.evaluator import evaluate
 class Engine:
     def __init__(self, board: Board) -> None:
         self._board = board
-        self.options: dict[str, str | int | bool] = {}
+        self.options: dict[str, str | int | bool] = {"Depth": 3}
 
     def move(self) -> Move:
         best_move = self._generate_best_move()
@@ -52,7 +52,7 @@ class Engine:
 
     @property
     def _depth(self) -> int:
-        specified_depth = self.options.get("depth")
+        specified_depth = self.options.get("Depth")
         if not isinstance(specified_depth, int):
             return 3
         return specified_depth

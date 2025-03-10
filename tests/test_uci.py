@@ -5,14 +5,13 @@ from sona.uci import do_uci_command
 
 
 def test_uci_uci(board: Board, engine: Engine) -> None:
-    engine.options["Life"] = 42
     engine.options["BeastMode"] = True
     engine.options["Type"] = "Fish"
 
     assert do_uci_command(board, engine, "uci") == (
         "id name Sona\n"
         "id author interrrp\n"
-        "option name Life type spin default 42\n"
+        "option name Depth type spin min -1000000 max 1000000 default 3\n"
         "option name BeastMode type check default true\n"
         "option name Type type string default Fish\n"
         "uciok\n"
@@ -36,17 +35,17 @@ def test_uci_goinfinite(board: Board, engine: Engine) -> None:
 
 
 def test_uci_setoption(board: Board, engine: Engine) -> None:
-    engine.options["Life"] = 42
+    engine.options["Depth"] = 2
     engine.options["BeastMode"] = True
     engine.options["Type"] = "Salmon"
 
     responses: list[str] = []
-    responses.append(do_uci_command(board, engine, "setoption name Life value 43"))
+    responses.append(do_uci_command(board, engine, "setoption name Depth value 2"))
     responses.append(do_uci_command(board, engine, "setoption name BeastMode value false"))
     responses.append(do_uci_command(board, engine, "setoption name Type value Salmon"))
     assert responses == ["", "", ""]
 
-    assert engine.options["Life"] == 43
+    assert engine.options["Depth"] == 2
     assert not engine.options["BeastMode"]
     assert engine.options["Type"] == "Salmon"
 
