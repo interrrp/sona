@@ -1,6 +1,7 @@
 import pytest
 from chess import Board
 
+from sona import INF
 from sona.evaluator import evaluate
 
 WHITE_WINNING_FEN = "rnbq1bnr/ppppkppp/8/4Q3/4P3/8/PPPP1PPP/RNB1KBNR b KQ - 0 3"
@@ -13,8 +14,8 @@ SEVENTYFIVE_MOVE_FEN = "8/8/8/8/8/8/8/8 w - - 75 1"
 @pytest.mark.parametrize(
     ("fen", "expected_evaluation"),
     [
-        (WHITE_WINNING_FEN, 1),
-        (BLACK_WINNING_FEN, -1),
+        (WHITE_WINNING_FEN, INF),
+        (BLACK_WINNING_FEN, -INF),
         (STALEMATE_FEN, 0),
         (INSUFFICIENT_MATERIAL_FEN, 0),
         (SEVENTYFIVE_MOVE_FEN, 0),

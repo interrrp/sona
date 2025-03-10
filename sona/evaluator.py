@@ -13,10 +13,12 @@ from chess import (
     PieceType,
 )
 
+from sona import INF
+
 
 def evaluate(board: Board) -> float:
     if board.is_checkmate():
-        return worst_score_for(board.turn)
+        return -INF * sign(board.turn)
 
     is_draw = (
         board.is_stalemate()
@@ -31,19 +33,25 @@ def evaluate(board: Board) -> float:
     score: float = 0
 
     if board.is_check():
-        score += worst_score_for(board.turn) * 3
+        score -= 3
 
+    n_white_pieces = 0
+    n_black_pieces = 0
     for square in SQUARES:
         piece = board.piece_at(square)
-        if piece:
-            score += evaluate_piece(piece)
+        if not piece:
+            continue
+        score += evaluate_piece(piece)
+        if piece.color == WHITE:
+            n_white_pieces += 1
+        else:
+            n_black_pieces += 1
 
-    return score
+    return score * (n_white_pieces - n_black_pieces) * sign(board.turn)
 
 
 def evaluate_piece(piece: Piece) -> float:
-    sign = 1 if piece.color == WHITE else -1
-    return get_piece_material(piece.piece_type) * sign
+    return get_piece_material(piece.piece_type)
 
 
 def get_piece_material(piece_type: PieceType) -> float:
@@ -60,5 +68,5 @@ def get_piece_material(piece_type: PieceType) -> float:
     return 0
 
 
-def worst_score_for(color: Color) -> float:
-    return -1 if color == WHITE else 1
+def sign(color: Color) -> float:
+    return 1 if color == WHITE else -1

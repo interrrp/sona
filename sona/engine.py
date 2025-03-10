@@ -1,8 +1,7 @@
 from chess import Board, Move
 
+from sona import INF
 from sona.evaluator import evaluate
-
-INF = float("inf")
 
 
 class Engine:
