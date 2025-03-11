@@ -5,74 +5,45 @@ from chess import (
     PAWN,
     QUEEN,
     ROOK,
-    SQUARES,
     WHITE,
     Board,
-    PieceType,
 )
 
 from sona import INF
 
+PIECE_MATERIAL = {
+    KING: 0,
+    PAWN: 1,
+    KNIGHT: 3,
+    BISHOP: 3,
+    ROOK: 5,
+    QUEEN: 9,
+}
+
 
 def evaluate(board: Board) -> float:
     if board.is_checkmate():
-        return -INF * get_sign(board)
+        return -INF * (1 if board.turn == WHITE else -1)
 
-    if is_draw(board):
-        return 0
-
-    return get_material_weight(board) * get_piece_diff(board) * get_sign(board)
-
-
-def is_draw(board: Board) -> bool:
-    return (
+    if (
         board.is_stalemate()
         or board.is_insufficient_material()
         or board.is_fivefold_repetition()
         or board.can_claim_fifty_moves()
         or board.is_seventyfive_moves()
-    )
-
-
-def get_material_weight(board: Board) -> float:
-    weight = 0
-    for square in SQUARES:
-        piece = board.piece_at(square)
-        if piece:
-            weight += get_piece_material(piece.piece_type)
-    return weight
-
-
-def get_piece_diff(board: Board) -> float:
-    num_white_pieces = 0
-    num_black_pieces = 0
-
-    for square in SQUARES:
-        piece = board.piece_at(square)
-        if piece is None:
-            continue
-
-        if piece.color == WHITE:
-            num_white_pieces += 1
-        else:
-            num_black_pieces += 1
-
-    return num_white_pieces - num_black_pieces
-
-
-def get_piece_material(piece_type: PieceType) -> float:
-    if piece_type == KING:
+    ):
         return 0
-    if piece_type == PAWN:
-        return 1
-    if piece_type in (KNIGHT, BISHOP):
-        return 3
-    if piece_type == ROOK:
-        return 5
-    if piece_type == QUEEN:
-        return 9
-    return 0
 
+    material_score = 0
+    piece_map = board.piece_map()
 
-def get_sign(board: Board) -> float:
-    return 1 if board.turn == WHITE else -1
+    for piece in piece_map.values():
+        piece_type = piece.piece_type
+        piece_color = piece.color
+        piece_value = PIECE_MATERIAL[piece_type]
+
+        material_score += piece_value if piece_color == WHITE else -piece_value
+
+    check_penalty = -3 if board.is_check() else 0
+
+    return material_score + (check_penalty * (1 if board.turn == WHITE else -1))
