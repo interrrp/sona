@@ -7,6 +7,7 @@ from chess import (
     ROOK,
     WHITE,
     Board,
+    Termination,
 )
 
 from sona import INF
@@ -22,28 +23,26 @@ PIECE_MATERIAL = {
 
 
 def evaluate(board: Board) -> float:
-    if board.is_checkmate():
-        return -INF * (1 if board.turn == WHITE else -1)
+    outcome = board.outcome()
+    if outcome:
+        if outcome.termination != Termination.CHECKMATE:
+            # Draw
+            return 0
 
-    if (
-        board.is_stalemate()
-        or board.is_insufficient_material()
-        or board.is_fivefold_repetition()
-        or board.can_claim_fifty_moves()
-        or board.is_seventyfive_moves()
-    ):
-        return 0
+        if outcome.winner == WHITE:
+            return INF
+        return -INF
 
     material_score = 0
     piece_map = board.piece_map()
+    num_pieces_diff = 0
 
     for piece in piece_map.values():
-        piece_type = piece.piece_type
-        piece_color = piece.color
-        piece_value = PIECE_MATERIAL[piece_type]
+        color = piece.color
+        value = PIECE_MATERIAL[piece.piece_type]
 
-        material_score += piece_value if piece_color == WHITE else -piece_value
+        material_score += value if color == WHITE else -value
+        num_pieces_diff += 1 if color == WHITE else -1
 
-    check_penalty = -3 if board.is_check() else 0
-
-    return material_score + (check_penalty * (1 if board.turn == WHITE else -1))
+    sign = 1 if board.turn == WHITE else -1
+    return (material_score + num_pieces_diff) * sign
