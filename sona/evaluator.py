@@ -23,6 +23,8 @@ PIECE_MATERIAL = {
 
 
 def evaluate(board: Board) -> float:
+    sign = 1 if board.turn == WHITE else -1
+
     outcome = board.outcome()
     if outcome:
         if outcome.termination != Termination.CHECKMATE:
@@ -30,8 +32,7 @@ def evaluate(board: Board) -> float:
             return 0
 
         if outcome.winner == WHITE:
-            return INF
-        return -INF
+            return INF * sign
 
     material_score = 0
     piece_map = board.piece_map()
@@ -44,5 +45,4 @@ def evaluate(board: Board) -> float:
         material_score += value if color == WHITE else -value
         num_pieces_diff += 1 if color == WHITE else -1
 
-    sign = 1 if board.turn == WHITE else -1
     return (material_score + num_pieces_diff) * sign
