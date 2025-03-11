@@ -20,7 +20,7 @@ class Engine:
             return Move.from_uci("e2e4")
 
         all_moves = list(self._board.legal_moves)
-        best_move = Move.null()
+        best_move = all_moves[0]
         best_score = -INF
 
         for move in all_moves:
@@ -28,7 +28,7 @@ class Engine:
             score = -self._negamax(depth=self._depth)
             self._board.pop()
 
-            if score > best_score:
+            if score >= best_score:
                 best_score = score
                 best_move = move
 
