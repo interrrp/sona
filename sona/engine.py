@@ -1,4 +1,5 @@
 from chess import Board, Move
+from chess.polyglot import zobrist_hash
 
 from sona import INF
 from sona.evaluator import evaluate
@@ -7,6 +8,7 @@ from sona.evaluator import evaluate
 class Engine:
     def __init__(self, board: Board) -> None:
         self._board = board
+        self._score_cache: dict[int, float] = {}
         self.options: dict[str, str | int | bool] = {"Depth": 3}
 
     def move(self) -> Move:
@@ -38,6 +40,10 @@ class Engine:
         if depth == 0 or self._board.is_game_over():
             return evaluate(self._board)
 
+        board_hash = zobrist_hash(self._board)
+        if score := self._score_cache.get(board_hash):
+            return score
+
         score = -INF
         for move in self._board.legal_moves:
             self._board.push(move)
@@ -47,6 +53,8 @@ class Engine:
             alpha = max(alpha, score)
             if alpha >= beta:
                 break
+
+        self._score_cache[board_hash] = score
 
         return score
 
