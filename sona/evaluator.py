@@ -30,9 +30,8 @@ def evaluate(board: Board) -> float:
         if outcome.termination != Termination.CHECKMATE:
             # Draw
             return 0
-
-        if outcome.winner == WHITE:
-            return INF * sign
+        # Checkmate
+        return -INF
 
     material_score = 0
     piece_map = board.piece_map()
