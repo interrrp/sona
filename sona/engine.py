@@ -1,24 +1,12 @@
-from dataclasses import dataclass
-from typing import Literal
-
 from chess import Board, Move
-from chess.polyglot import zobrist_hash
 
 from sona import INF
 from sona.evaluator import evaluate
 
 
-@dataclass(frozen=True)
-class TranspositionTableEntry:
-    score: float
-    depth: int
-    flag: Literal["exact", "lowerbound", "upperbound"]
-
-
 class Engine:
     def __init__(self, board: Board) -> None:
         self._board = board
-        self._transposition_table: dict[int, TranspositionTableEntry] = {}
         self.options: dict[str, str | int | bool] = {"Depth": 3}
 
     def move(self) -> Move:
@@ -27,18 +15,19 @@ class Engine:
         return best_move
 
     def _generate_best_move(self) -> Move:
-        if not self._board.move_stack:
+        board = self._board
+
+        if not board.move_stack:
             # First move should always be e2e4
             return Move.from_uci("e2e4")
 
-        all_moves = list(self._board.legal_moves)
-        best_move = all_moves[0]
+        best_move = Move.null()
         best_score = -INF
 
-        for move in all_moves:
-            self._board.push(move)
-            score = -self._negamax(depth=self._depth)
-            self._board.pop()
+        for move in board.legal_moves:
+            board.push(move)
+            score = -self._search(self._depth)
+            board.pop()
 
             if score >= best_score:
                 best_score = score
@@ -46,42 +35,23 @@ class Engine:
 
         return best_move
 
-    def _negamax(self, depth: int, alpha: float = -INF, beta: float = INF) -> float:  # noqa: C901
-        if depth == 0 or self._board.is_game_over():
-            return evaluate(self._board)
+    def _search(self, depth: int, _alpha: float = -INF, _beta: float = INF) -> float:
+        board = self._board
 
-        board_hash = zobrist_hash(self._board)
-        if board_hash in self._transposition_table:
-            entry = self._transposition_table[board_hash]
-            if entry.depth >= depth:
-                if entry.flag == "exact" or alpha >= beta:
-                    return entry.score
-                if entry.flag == "lowerbound":
-                    alpha = max(alpha, entry.score)
-                elif entry.flag == "upperbound":
-                    beta = min(beta, entry.score)
+        if depth == 0 or board.is_game_over():
+            return evaluate(board)
 
-        original_alpha = alpha
-        best_score = -INF
-        for move in self._board.legal_moves:
-            self._board.push(move)
-            score = -self._negamax(depth - 1, -beta, -alpha)
-            self._board.pop()
+        for move in board.legal_moves:
+            board.push(move)
+            score = -self._search(depth - 1, -_beta, -_alpha)
+            board.pop()
 
-            best_score = max(best_score, score)
-            alpha = max(alpha, score)
-            if alpha >= beta:
-                break
+            if score >= _beta:
+                return _beta
 
-        if best_score <= original_alpha:
-            flag = "upperbound"
-        elif best_score >= beta:
-            flag = "lowerbound"
-        else:
-            flag = "exact"
-        self._transposition_table[board_hash] = TranspositionTableEntry(best_score, depth, flag)
+            _alpha = max(_alpha, score)
 
-        return best_score
+        return _alpha
 
     @property
     def _depth(self) -> int:

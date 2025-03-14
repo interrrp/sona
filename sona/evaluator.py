@@ -1,14 +1,4 @@
-from chess import (
-    BISHOP,
-    KING,
-    KNIGHT,
-    PAWN,
-    QUEEN,
-    ROOK,
-    WHITE,
-    Board,
-    Termination,
-)
+from chess import BISHOP, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE, Board, Termination
 
 from sona import INF
 
@@ -23,8 +13,6 @@ PIECE_MATERIAL = {
 
 
 def evaluate(board: Board) -> float:
-    sign = 1 if board.turn == WHITE else -1
-
     outcome = board.outcome()
     if outcome:
         if outcome.termination != Termination.CHECKMATE:
@@ -34,14 +22,16 @@ def evaluate(board: Board) -> float:
         return -INF
 
     material_score = 0
-    piece_map = board.piece_map()
     num_pieces_diff = 0
 
-    for piece in piece_map.values():
-        color = piece.color
-        value = PIECE_MATERIAL[piece.piece_type]
+    for piece in board.piece_map().values():
+        if piece.color == WHITE:
+            material_score += PIECE_MATERIAL[piece.piece_type]
+            num_pieces_diff += 1
+        else:
+            material_score -= PIECE_MATERIAL[piece.piece_type]
+            num_pieces_diff -= 1
 
-        material_score += value if color == WHITE else -value
-        num_pieces_diff += 1 if color == WHITE else -1
+    sign = 1 if board.turn == WHITE else -1
 
     return (material_score + num_pieces_diff) * sign
