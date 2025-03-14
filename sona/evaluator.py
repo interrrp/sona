@@ -1,15 +1,6 @@
-from chess import BISHOP, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE, Board, Termination
+from chess import WHITE, Board, Termination, square_mirror
 
-from sona import INF
-
-PIECE_MATERIAL = {
-    KING: 0,
-    PAWN: 1,
-    KNIGHT: 3,
-    BISHOP: 3,
-    ROOK: 5,
-    QUEEN: 9,
-}
+from sona.data import INF, PIECE_MATERIAL, PSQTS
 
 
 def evaluate(board: Board) -> float:
@@ -22,16 +13,19 @@ def evaluate(board: Board) -> float:
         return -INF
 
     material_score = 0
-    num_pieces_diff = 0
+    psqt_score = 0
 
-    for piece in board.piece_map().values():
+    for square, piece in board.piece_map().items():
+        material = PIECE_MATERIAL[piece.piece_type]
+        psqt = PSQTS[piece.piece_type]
+
         if piece.color == WHITE:
-            material_score += PIECE_MATERIAL[piece.piece_type]
-            num_pieces_diff += 1
+            material_score += material
+            psqt_score += psqt[square_mirror(square)]
         else:
-            material_score -= PIECE_MATERIAL[piece.piece_type]
-            num_pieces_diff -= 1
+            material_score -= material
+            psqt_score += psqt[square]
 
-    sign = 1 if board.turn == WHITE else -1
+    perspective = 1 if board.turn == WHITE else -1
 
-    return (material_score + num_pieces_diff) * sign
+    return (material_score + psqt_score) * perspective

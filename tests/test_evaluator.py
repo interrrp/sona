@@ -1,7 +1,7 @@
 import pytest
 from chess import Board
 
-from sona import INF
+from sona.data import INF
 from sona.evaluator import evaluate
 
 WHITE_WINNING_FEN = "pkp5/8/1Q6/1K6/8/8/8/8 b - - 0 1"

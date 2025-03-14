@@ -2,7 +2,7 @@ from collections.abc import Generator
 
 from chess import Board, Move
 
-from sona.evaluator import PIECE_MATERIAL
+from sona.data import PIECE_MATERIAL
 
 
 def ordered_moves(board: Board) -> Generator[Move]:

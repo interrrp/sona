@@ -1,6 +1,6 @@
 from chess import Board, Move
 
-from sona import INF
+from sona.data import INF
 from sona.evaluator import evaluate
 from sona.ordering import ordered_moves
 
