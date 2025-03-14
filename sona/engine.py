@@ -2,6 +2,7 @@ from chess import Board, Move
 
 from sona import INF
 from sona.evaluator import evaluate
+from sona.ordering import ordered_moves
 
 
 class Engine:
@@ -41,7 +42,7 @@ class Engine:
         if depth == 0 or board.is_game_over():
             return evaluate(board)
 
-        for move in board.legal_moves:
+        for move in ordered_moves(board):
             board.push(move)
             score = -self._search(depth - 1, -_beta, -_alpha)
             board.pop()
