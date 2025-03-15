@@ -3,11 +3,11 @@ from chess import BISHOP, KING, KNIGHT, PAWN, QUEEN, ROOK
 INF = float("inf")
 
 PIECE_MATERIAL = {
-    PAWN: 1,
-    KNIGHT: 3,
-    BISHOP: 3,
-    ROOK: 5,
-    QUEEN: 9,
+    PAWN: 100,
+    KNIGHT: 350,
+    BISHOP: 350,
+    ROOK: 500,
+    QUEEN: 900,
     KING: 0,
 }
 

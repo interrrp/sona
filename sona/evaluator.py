@@ -1,17 +1,9 @@
-from chess import WHITE, Board, Termination, square_mirror
+from chess import WHITE, Board, square_mirror
 
-from sona.data import INF, PIECE_MATERIAL, PSQTS
+from sona.data import PIECE_MATERIAL, PSQTS
 
 
 def evaluate(board: Board) -> float:
-    outcome = board.outcome()
-    if outcome:
-        if outcome.termination != Termination.CHECKMATE:
-            # Draw
-            return 0
-        # Checkmate
-        return -INF
-
     material_score = 0
     psqt_score = 0
 
@@ -24,7 +16,7 @@ def evaluate(board: Board) -> float:
             psqt_score += psqt[square_mirror(square)]
         else:
             material_score -= material
-            psqt_score += psqt[square]
+            psqt_score -= psqt[square]
 
     perspective = 1 if board.turn == WHITE else -1
 

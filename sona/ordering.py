@@ -9,7 +9,7 @@ def ordered_moves(board: Board) -> list[Move]:
 
         move_piece_type = board.piece_type_at(move.from_square)
         if not move_piece_type:
-            return 0
+            return 1000
 
         target_piece_type = board.piece_type_at(move.to_square)
         if target_piece_type:
@@ -20,4 +20,4 @@ def ordered_moves(board: Board) -> list[Move]:
 
         return guess
 
-    return sorted(board.legal_moves, key=move_ordering_key, reverse=True)
+    return sorted(board.legal_moves, key=move_ordering_key)

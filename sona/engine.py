@@ -1,4 +1,4 @@
-from chess import Board, Move
+from chess import Board, Move, Termination
 
 from sona.data import INF
 from sona.evaluator import evaluate
@@ -39,7 +39,15 @@ class Engine:
     def _search(self, depth: int, _alpha: float = -INF, _beta: float = INF) -> float:
         board = self._board
 
-        if depth == 0 or board.is_game_over():
+        outcome = board.outcome()
+        if outcome:
+            if outcome.termination != Termination.CHECKMATE:
+                # Draw
+                return 0
+            # Checkmate
+            return -INF
+
+        if depth == 0:
             return evaluate(board)
 
         for move in ordered_moves(board):
