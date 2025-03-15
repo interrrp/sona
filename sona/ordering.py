@@ -13,10 +13,10 @@ def ordered_moves(board: Board) -> list[Move]:
 
         target_piece_type = board.piece_type_at(move.to_square)
         if target_piece_type:
-            guess += PIECE_MATERIAL[target_piece_type] - PIECE_MATERIAL[move_piece_type]
+            guess += 10 * (PIECE_MATERIAL[target_piece_type] - PIECE_MATERIAL[move_piece_type])
 
         if move.promotion:
-            guess += PIECE_MATERIAL[move.promotion]
+            guess += 100 * PIECE_MATERIAL[move.promotion]
 
         return guess
 

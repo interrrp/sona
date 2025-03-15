@@ -8,7 +8,7 @@ from sona.ordering import ordered_moves
 class Engine:
     def __init__(self, board: Board) -> None:
         self._board = board
-        self.options: dict[str, str | int | bool] = {"Depth": 3}
+        self.options = Options()
 
     def move(self) -> Move:
         best_move = self._generate_best_move()
@@ -27,7 +27,7 @@ class Engine:
 
         for move in board.legal_moves:
             board.push(move)
-            score = -self._search(self._depth)
+            score = -self._search(self.options.depth)
             board.pop()
 
             if score >= best_score:
@@ -54,9 +54,11 @@ class Engine:
 
         return _alpha
 
+
+class Options(dict[str, str | int | bool]):
+    def __init__(self) -> None:
+        self["Depth"] = 3
+
     @property
-    def _depth(self) -> int:
-        specified_depth = self.options.get("Depth")
-        if not isinstance(specified_depth, int):
-            return 3
-        return specified_depth
+    def depth(self) -> int:
+        return int(self["Depth"])
