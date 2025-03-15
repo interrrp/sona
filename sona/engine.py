@@ -1,3 +1,5 @@
+import random
+
 from chess import Board, Move, Termination
 
 from sona.data import INF
@@ -22,7 +24,7 @@ class Engine:
             # First move should always be e2e4
             return Move.from_uci("e2e4")
 
-        best_move = Move.null()
+        best_moves: list[Move] = []
         best_score = -INF
 
         for move in board.legal_moves:
@@ -30,11 +32,13 @@ class Engine:
             score = -self._search(self.options.depth)
             board.pop()
 
-            if score >= best_score:
+            if score == best_score:
+                best_moves.append(move)
+            elif score > best_score:
                 best_score = score
-                best_move = move
+                best_moves = [move]
 
-        return best_move
+        return random.choice(best_moves)  # noqa: S311
 
     def _search(self, depth: int, _alpha: float = -INF, _beta: float = INF) -> float:
         board = self._board
