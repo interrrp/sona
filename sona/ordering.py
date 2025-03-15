@@ -1,11 +1,9 @@
-from collections.abc import Generator
-
 from chess import Board, Move
 
 from sona.data import PIECE_MATERIAL
 
 
-def ordered_moves(board: Board) -> Generator[Move]:
+def ordered_moves(board: Board) -> list[Move]:
     def move_ordering_key(move: Move) -> float:
         guess = 0
 
@@ -22,8 +20,4 @@ def ordered_moves(board: Board) -> Generator[Move]:
 
         return guess
 
-    all_moves = list(board.legal_moves)
-    while all_moves:
-        best_move = min(all_moves, key=move_ordering_key)
-        all_moves.remove(best_move)
-        yield best_move
+    return sorted(board.legal_moves, key=move_ordering_key, reverse=True)
